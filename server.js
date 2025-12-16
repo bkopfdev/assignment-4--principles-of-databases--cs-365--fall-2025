@@ -212,7 +212,7 @@ app.post(`/delete-a-db-record`, (req, res) => {
 
     console.log(`================== DELETE Request Received ==================`);
     console.log(nameFromForm); // Log the name
-    console.log(req.body); // Log the entire request (user & pass data)
+    console.log(req.body); // Logs full request (though, this is still only just the name in the delete record)
 
     db.collection(dbCollection).deleteOne({ name: nameFromForm })
         .then(() => {
