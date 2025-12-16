@@ -162,6 +162,36 @@ app.get(`/update-a-db-record`, (req, res) => {
 });
 
 /*
+ * This router handles the POST requests for /update-a-db-record/
+ * As suggested in class, the examples repo REALLY carried here.
+ * As the assignment said, it also writes out the request in the log
+ */
+app.post(`/update-a-db-record`, (req, res) => {
+    let nameFromForm = req.body.name;
+
+    console.log(`================== UPDATE Request Received ==================`);
+    console.log(nameFromForm); // Log the name
+    console.log(req.body); // Log the entire request (user & pass data)
+
+    db.collection(dbCollection).updateOne(
+        { name: nameFromForm },
+        { $set: {"password": req.body.password} }
+    ).then(() => {
+
+      db.collection(dbCollection).find().toArray((err, arrayObject) => {
+            if (err) { // Error handling
+                return console.log(err);
+            } else {
+                console.log(
+                    `UPDATED one record into Mongo via an HTML form using POST.\n`);
+
+                res.render(`read-from-database.njk`, {mongoDBArray: arrayObject});
+            }
+        });
+    });
+});
+
+/*
  * This router handles GET requests to
  * http://localhost:3000/delete-a-db-record/
  */
@@ -170,4 +200,31 @@ app.get(`/delete-a-db-record`, (req, res) => {
         res.render(`delete-a-record-in-database.njk`,
             {mongoDBArray: arrayObject});
     });
+});
+
+/*
+ * This router handles the POST requests for /delete-a-db-record/
+ * As was true for the update POST requests, the examples repo helped a ton
+ * Per the assignment, this also posts data to the log regarding the request
+ */
+app.post(`/delete-a-db-record`, (req, res) => {
+    let nameFromForm = req.body.name;
+
+    console.log(`================== DELETE Request Received ==================`);
+    console.log(nameFromForm); // Log the name
+    console.log(req.body); // Log the entire request (user & pass data)
+
+    db.collection(dbCollection).deleteOne({ name: nameFromForm })
+        .then(() => {
+            db.collection(dbCollection).find().toArray((err, arrayObject) => {
+                if (err) {
+                    return console.log(err);
+                } else {
+                    console.log(`User requested the resource ` +
+                        colors.green, `http://${HOST}:${port}/delete-a-db-record`, colors.reset);
+
+                    res.render(`read-from-database.njk`, {mongoDBArray: arrayObject});
+                }
+            });
+        });
 });
